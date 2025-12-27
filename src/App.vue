@@ -1,16 +1,28 @@
 <template>
   <I18nProvider v-slot="{ direction }">
     <main class="page" :dir="direction">
-      <LayoutHeader :series="prayerSeries" />
-      <PrayerChart :series="prayerSeries" />
+      <LayoutHeader
+        v-model:city="city"
+        :series="prayerSeries"
+        :cities="cities"
+      />
+      <PrayerChart :series="prayerSeries" :city="city" />
     </main>
   </I18nProvider>
 </template>
 
 <script setup>
+import { ref } from "vue";
 import I18nProvider from "./components/I18nProvider.vue";
 import LayoutHeader from "./components/LayoutHeader.vue";
 import PrayerChart from "./components/PrayerChart.vue";
+
+const city = ref("agadir");
+
+const cities = [
+  { id: "agadir", labelKey: "cityAgadir" },
+  { id: "paris", labelKey: "cityParis" },
+];
 
 const prayerSeries = [
   { key: "Fajr", color: "#1b5e20" },

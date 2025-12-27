@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import { computed, inject } from "vue";
+import { computed, inject, ref, watch } from "vue";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -16,7 +16,6 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "vue-chartjs";
-import prayerTimes from "../agadir_prayer_times_2025.json";
 
 ChartJS.register(
   CategoryScale,
@@ -34,11 +33,48 @@ const props = defineProps({
     type: Array,
     required: true,
   },
+  city: {
+    type: String,
+    required: true,
+  },
 });
 
-const prayerData = prayerTimes
-  .slice()
-  .sort((a, b) => new Date(a.Date) - new Date(b.Date));
+const cityFiles = {
+  agadir: "/agadir_prayer_times_2025.json",
+  paris: "/paris_prayer_times_2025.json",
+};
+
+const prayerData = ref([]);
+
+const loadCityData = async () => {
+  const filePath = cityFiles[props.city];
+  if (!filePath) {
+    prayerData.value = [];
+    return;
+  }
+
+  try {
+    const response = await fetch(filePath);
+    if (!response.ok) {
+      prayerData.value = [];
+      return;
+    }
+    const data = await response.json();
+    prayerData.value = Array.isArray(data)
+      ? data.slice().sort((a, b) => new Date(a.Date) - new Date(b.Date))
+      : [];
+  } catch (error) {
+    prayerData.value = [];
+  }
+};
+
+watch(
+  () => props.city,
+  () => {
+    loadCityData();
+  },
+  { immediate: true },
+);
 
 const timeToHours = (timeValue) => {
   if (!timeValue || typeof timeValue !== "string") {
@@ -51,7 +87,7 @@ const timeToHours = (timeValue) => {
 };
 
 const labels = computed(() =>
-  prayerData.map((entry) =>
+  prayerData.value.map((entry) =>
     new Date(entry.Date).toLocaleDateString(locale.value, {
       month: "short",
       day: "numeric",
@@ -63,7 +99,7 @@ const chartData = computed(() => ({
   labels: labels.value,
   datasets: props.series.map((prayer) => ({
     label: t(prayer.key),
-    data: prayerData.map((entry) => timeToHours(entry[prayer.key])),
+    data: prayerData.value.map((entry) => timeToHours(entry[prayer.key])),
     borderColor: prayer.color,
     backgroundColor: prayer.color,
     tension: 0.3,

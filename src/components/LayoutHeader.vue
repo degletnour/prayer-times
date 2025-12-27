@@ -6,19 +6,37 @@
       <p class="subhead">{{ t("subtitle") }}</p>
     </div>
     <div class="controls">
-      <label class="control-label" for="language-select">
-        {{ t("languageLabel") }}
-      </label>
-      <select
-        id="language-select"
-        v-model="language"
-        class="control-select"
-        aria-label="Language"
-      >
-        <option value="en">English</option>
-        <option value="fr">Français</option>
-        <option value="ar">العربية</option>
-      </select>
+      <div class="control-group">
+        <label class="control-label" for="language-select">
+          {{ t("languageLabel") }}
+        </label>
+        <select
+          id="language-select"
+          v-model="language"
+          class="control-select"
+          aria-label="Language"
+        >
+          <option value="en">English</option>
+          <option value="fr">Français</option>
+          <option value="ar">العربية</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="city-select">
+          {{ t("cityLabel") }}
+        </label>
+        <select
+          id="city-select"
+          :value="city"
+          class="control-select"
+          aria-label="City"
+          @change="updateCity"
+        >
+          <option v-for="item in cities" :key="item.id" :value="item.id">
+            {{ t(item.labelKey) }}
+          </option>
+        </select>
+      </div>
     </div>
     <div class="legend">
       <span v-for="item in series" :key="item.key" class="legend-item">
@@ -33,13 +51,26 @@
 import { inject } from "vue";
 
 const { language, t } = inject("i18n");
+const emit = defineEmits(["update:city"]);
 
 defineProps({
   series: {
     type: Array,
     required: true,
   },
+  cities: {
+    type: Array,
+    required: true,
+  },
+  city: {
+    type: String,
+    required: true,
+  },
 });
+
+const updateCity = (event) => {
+  emit("update:city", event.target.value);
+};
 </script>
 
 <style scoped>
@@ -80,6 +111,12 @@ h1 {
   padding: 12px 16px;
   border-radius: 14px;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .control-label {

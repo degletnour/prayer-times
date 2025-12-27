@@ -191,13 +191,30 @@ const chartOptions = computed(() => ({
       display: false,
     },
     tooltip: {
+      padding: 16,
+      boxPadding: 8,
+      bodySpacing: 6,
+      titleSpacing: 8,
+      titleMarginBottom: 8,
+      bodyFont: {
+        size: 14,
+        weight: "600",
+      },
+      titleFont: {
+        size: 14,
+        weight: "700",
+      },
+      footerFont: {
+        size: 12,
+        weight: "600",
+      },
       callbacks: {
         label: (context) => {
           const hours = Math.floor(context.parsed.y);
           const minutes = Math.round((context.parsed.y - hours) * 60)
             .toString()
             .padStart(2, "0");
-          return `${context.dataset.label}: ${hours}:${minutes}`;
+          return `${context.dataset.label}\u2003\u2003${hours}:${minutes}`;
         },
       },
     },

@@ -35,6 +35,7 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "vue-chartjs";
+import prayerTimes from "../agadir_prayer_times_2025.json";
 
 ChartJS.register(
   CategoryScale,
@@ -45,80 +46,9 @@ ChartJS.register(
   Legend,
 );
 
-const prayerData = [
-  {
-    Date: "2025-01-01",
-    Day: "Wednesday",
-    Fajr: "07:04",
-    "Sunrise (Shuruq)": "08:35",
-    Dhuha: "09:05",
-    Dhuhr: "13:45",
-    Asr: "16:31",
-    Maghrib: "18:50",
-    Isha: "20:13",
-    "Qibla Hour": NaN,
-  },
-  {
-    Date: "2025-02-01",
-    Day: "Saturday",
-    Fajr: "06:45",
-    "Sunrise (Shuruq)": "08:10",
-    Dhuha: "08:40",
-    Dhuhr: "13:40",
-    Asr: "16:45",
-    Maghrib: "19:10",
-    Isha: "20:30",
-    "Qibla Hour": NaN,
-  },
-  {
-    Date: "2025-03-01",
-    Day: "Saturday",
-    Fajr: "06:10",
-    "Sunrise (Shuruq)": "07:35",
-    Dhuha: "08:05",
-    Dhuhr: "13:30",
-    Asr: "16:50",
-    Maghrib: "19:35",
-    Isha: "20:55",
-    "Qibla Hour": NaN,
-  },
-  {
-    Date: "2025-04-01",
-    Day: "Tuesday",
-    Fajr: "05:30",
-    "Sunrise (Shuruq)": "06:55",
-    Dhuha: "07:25",
-    Dhuhr: "13:20",
-    Asr: "16:55",
-    Maghrib: "20:00",
-    Isha: "21:20",
-    "Qibla Hour": NaN,
-  },
-  {
-    Date: "2025-05-01",
-    Day: "Thursday",
-    Fajr: "04:55",
-    "Sunrise (Shuruq)": "06:15",
-    Dhuha: "06:45",
-    Dhuhr: "13:15",
-    Asr: "17:05",
-    Maghrib: "20:20",
-    Isha: "21:40",
-    "Qibla Hour": NaN,
-  },
-  {
-    Date: "2025-06-01",
-    Day: "Sunday",
-    Fajr: "04:30",
-    "Sunrise (Shuruq)": "05:55",
-    Dhuha: "06:25",
-    Dhuhr: "13:20",
-    Asr: "17:20",
-    Maghrib: "20:40",
-    Isha: "22:00",
-    "Qibla Hour": NaN,
-  },
-];
+const prayerData = prayerTimes
+  .slice()
+  .sort((a, b) => new Date(a.Date) - new Date(b.Date));
 
 const prayerSeries = [
   { key: "Fajr", label: "Fajr", color: "#1b5e20" },

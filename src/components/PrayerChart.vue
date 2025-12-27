@@ -40,8 +40,8 @@ const props = defineProps({
 });
 
 const cityFiles = {
-  agadir: "/agadir_prayer_times_2025.json",
-  paris: "/paris_prayer_times_2025.json",
+  agadir: "../../agadir_prayer_times_2025.json",
+  paris: "../../paris_prayer_times_2025.json",
 };
 
 const prayerData = ref([]);

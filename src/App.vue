@@ -1,18 +1,30 @@
 <template>
-  <main class="page">
+  <main class="page" :dir="direction">
     <header class="hero">
       <div>
-        <p class="eyebrow">Prayer Times</p>
-        <h1>Daily Prayer Schedule Across the Year</h1>
-        <p class="subhead">
-          Each line shows the daily time (in hours) for its prayer across the
-          calendar.
-        </p>
+        <p class="eyebrow">{{ t("eyebrow") }}</p>
+        <h1>{{ t("title") }}</h1>
+        <p class="subhead">{{ t("subtitle") }}</p>
+      </div>
+      <div class="controls">
+        <label class="control-label" for="language-select">
+          {{ t("languageLabel") }}
+        </label>
+        <select
+          id="language-select"
+          v-model="language"
+          class="control-select"
+          aria-label="Language"
+        >
+          <option value="en">English</option>
+          <option value="fr">Français</option>
+          <option value="ar">العربية</option>
+        </select>
       </div>
       <div class="legend">
-        <span v-for="item in legend" :key="item.label" class="legend-item">
+        <span v-for="item in legend" :key="item.key" class="legend-item">
           <span class="legend-dot" :style="{ backgroundColor: item.color }"></span>
-          {{ item.label }}
+          {{ t(item.key) }}
         </span>
       </div>
     </header>
@@ -24,7 +36,7 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -51,13 +63,66 @@ const prayerData = prayerTimes
   .sort((a, b) => new Date(a.Date) - new Date(b.Date));
 
 const prayerSeries = [
-  { key: "Fajr", label: "Fajr", color: "#1b5e20" },
-  { key: "Sunrise (Shuruq)", label: "Sunrise", color: "#f9a825" },
-  { key: "Dhuhr", label: "Dhuhr", color: "#1565c0" },
-  { key: "Asr", label: "Asr", color: "#6a1b9a" },
-  { key: "Maghrib", label: "Maghrib", color: "#ef6c00" },
-  { key: "Isha", label: "Isha", color: "#283593" },
+  { key: "Fajr", color: "#1b5e20" },
+  { key: "Sunrise (Shuruq)", color: "#f9a825" },
+  { key: "Dhuhr", color: "#1565c0" },
+  { key: "Asr", color: "#6a1b9a" },
+  { key: "Maghrib", color: "#ef6c00" },
+  { key: "Isha", color: "#283593" },
 ];
+
+const language = ref("en");
+
+const translations = {
+  en: {
+    eyebrow: "Prayer Times",
+    title: "Daily Prayer Schedule Across the Year",
+    subtitle:
+      "Each line shows the daily time (in hours) for its prayer across the calendar.",
+    languageLabel: "Language",
+    Fajr: "Fajr",
+    "Sunrise (Shuruq)": "Sunrise",
+    Dhuhr: "Dhuhr",
+    Asr: "Asr",
+    Maghrib: "Maghrib",
+    Isha: "Isha",
+    yAxis: "Hour of Day",
+    xAxis: "Date",
+  },
+  fr: {
+    eyebrow: "Heures de prière",
+    title: "Calendrier quotidien des prières sur l'année",
+    subtitle:
+      "Chaque ligne indique l'heure quotidienne (en heures) de la prière.",
+    languageLabel: "Langue",
+    Fajr: "Fajr",
+    "Sunrise (Shuruq)": "Lever du soleil",
+    Dhuhr: "Dhohr",
+    Asr: "Asr",
+    Maghrib: "Maghrib",
+    Isha: "Icha",
+    yAxis: "Heure de la journée",
+    xAxis: "Date",
+  },
+  ar: {
+    eyebrow: "مواقيت الصلاة",
+    title: "جدول الصلوات اليومي على مدار السنة",
+    subtitle: "يعرض كل خط وقت الصلاة اليومي (بالساعات) عبر التقويم.",
+    languageLabel: "اللغة",
+    Fajr: "الفجر",
+    "Sunrise (Shuruq)": "الشروق",
+    Dhuhr: "الظهر",
+    Asr: "العصر",
+    Maghrib: "المغرب",
+    Isha: "العشاء",
+    yAxis: "الساعة في اليوم",
+    xAxis: "التاريخ",
+  },
+};
+
+const t = (key) => translations[language.value]?.[key] ?? key;
+
+const direction = computed(() => (language.value === "ar" ? "rtl" : "ltr"));
 
 const timeToHours = (timeValue) => {
   if (!timeValue || typeof timeValue !== "string") {
@@ -69,9 +134,15 @@ const timeToHours = (timeValue) => {
     : hours + minutes / 60;
 };
 
+const localeMap = {
+  en: "en-US",
+  fr: "fr-FR",
+  ar: "ar-MA",
+};
+
 const labels = computed(() =>
   prayerData.map((entry) =>
-    new Date(entry.Date).toLocaleDateString("en-US", {
+    new Date(entry.Date).toLocaleDateString(localeMap[language.value], {
       month: "short",
       day: "numeric",
     }),
@@ -81,7 +152,7 @@ const labels = computed(() =>
 const chartData = computed(() => ({
   labels: labels.value,
   datasets: prayerSeries.map((prayer) => ({
-    label: prayer.label,
+    label: t(prayer.key),
     data: prayerData.map((entry) => timeToHours(entry[prayer.key])),
     borderColor: prayer.color,
     backgroundColor: prayer.color,
@@ -91,7 +162,7 @@ const chartData = computed(() => ({
   })),
 }));
 
-const chartOptions = {
+const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   interaction: {
@@ -102,7 +173,7 @@ const chartOptions = {
     y: {
       title: {
         display: true,
-        text: "Hour of Day",
+        text: t("yAxis"),
       },
       ticks: {
         callback: (value) => `${value}:00`,
@@ -111,7 +182,7 @@ const chartOptions = {
     x: {
       title: {
         display: true,
-        text: "Date",
+        text: t("xAxis"),
       },
     },
   },
@@ -131,7 +202,7 @@ const chartOptions = {
       },
     },
   },
-};
+}));
 
 const legend = prayerSeries;
 </script>
@@ -160,6 +231,31 @@ const legend = prayerSeries;
   justify-content: space-between;
   gap: 24px;
   flex-wrap: wrap;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #fff;
+  padding: 12px 16px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.control-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.control-select {
+  border-radius: 10px;
+  border: 1px solid #cbd5f5;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+  background: #f8fafc;
+  color: #1f2933;
 }
 
 .eyebrow {
